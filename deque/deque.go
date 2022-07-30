@@ -2,87 +2,89 @@ package deque
 
 import "strconv"
 
-type Deque struct {
-	data                 []int
+type Deque[T any] struct {
+	data                 []T
 	size                 int
 	beginIndex, endIndex int
+	cap                  int
 }
 
 const DequeMinCap = 8
 
 const DequeInitCap = 8
 
-func (receiver Deque) Size() int {
+func (receiver Deque[T]) Size() int {
 	return receiver.size
 }
 
-func (receiver *Deque) incSize() {
+func (receiver *Deque[T]) incSize() {
 	receiver.size++
 }
 
-func (receiver *Deque) decSize() {
+func (receiver *Deque[T]) decSize() {
 	receiver.size--
 }
 
-func (receiver Deque) IsEmpty() bool {
+func (receiver Deque[T]) IsEmpty() bool {
 	return receiver.Size() == 0
 }
 
-func (receiver Deque) IsNotEmpty() bool {
+func (receiver Deque[T]) IsNotEmpty() bool {
 	return !receiver.IsEmpty()
 }
 
-func (receiver Deque) Cap() int {
-	return len(receiver.data)
+func (receiver Deque[T]) Cap() int {
+	return receiver.cap
 }
 
-func NewDeque() Deque {
-	return Deque{data: make([]int, DequeInitCap)}
+func NewDeque[T any]() Deque[T] {
+	return Deque[T]{data: make([]T, DequeInitCap), cap: DequeInitCap}
 }
 
-func (receiver Deque) modulo(i int) int {
+func (receiver Deque[T]) modulo(i int) int {
 	for i < 0 {
 		i += receiver.Cap()
 	}
 	return i % receiver.Cap()
 }
 
-func (receiver Deque) inc(i int) int {
+func (receiver Deque[T]) inc(i int) int {
 	return receiver.modulo(i + 1)
 }
 
-func (receiver Deque) dec(i int) int {
+func (receiver Deque[T]) dec(i int) int {
 	return receiver.modulo(i - 1)
 }
 
-func (receiver *Deque) resize(newSize int) {
+func (receiver *Deque[T]) resize(newSize int) {
 	newCap := receiver.max(DequeMinCap, newSize)
-	newData := make([]int, newCap)
+	newData := make([]T, newCap)
 	for i := 0; i < receiver.Size(); i++ {
 		newData[i] = receiver.Get(i)
 	}
 	receiver.data = newData
 	receiver.beginIndex = 0
 	receiver.endIndex = receiver.modulo(receiver.Size())
+	receiver.cap = newSize
 }
 
-func (receiver *Deque) expand() {
+func (receiver *Deque[T]) expand() {
 	receiver.resize(receiver.Cap() * 2)
 }
 
-func (receiver *Deque) shrink() {
+func (receiver *Deque[T]) shrink() {
 	receiver.resize((receiver.Cap() + 1) / 2)
 }
 
-func (receiver Deque) isFull() bool {
+func (receiver Deque[T]) isFull() bool {
 	return receiver.Size() == receiver.Cap()
 }
 
-func (receiver Deque) isToShrink() bool {
+func (receiver Deque[T]) isToShrink() bool {
 	return receiver.Cap() > DequeMinCap && receiver.Size() <= receiver.Cap()/4
 }
 
-func (receiver Deque) Get(index int) int {
+func (receiver Deque[T]) Get(index int) T {
 	if index < 0 || index >= receiver.Size() {
 		panic("index [" + strconv.Itoa(index) +
 			"] out of range [" + strconv.Itoa(receiver.Size()) + "]")
@@ -90,7 +92,7 @@ func (receiver Deque) Get(index int) int {
 	return receiver.data[receiver.modulo(receiver.beginIndex+index)]
 }
 
-func (receiver *Deque) Set(index int, value int) {
+func (receiver *Deque[T]) Set(index int, value T) {
 	if index < 0 || index >= receiver.Size() {
 		panic("index [" + strconv.Itoa(index) +
 			"] out of range [" + strconv.Itoa(receiver.Size()) + "]")
@@ -98,21 +100,21 @@ func (receiver *Deque) Set(index int, value int) {
 	receiver.data[receiver.modulo(receiver.beginIndex+index)] = value
 }
 
-func (receiver Deque) Back() int {
+func (receiver Deque[T]) Back() T {
 	if receiver.IsEmpty() {
 		panic("the deque is currently empty!")
 	}
 	return receiver.Get(receiver.Size() - 1)
 }
 
-func (receiver Deque) Front() int {
+func (receiver Deque[T]) Front() T {
 	if receiver.IsEmpty() {
 		panic("the deque is currently empty!")
 	}
 	return receiver.Get(0)
 }
 
-func (receiver *Deque) PushBack(item int) {
+func (receiver *Deque[T]) PushBack(item T) {
 	if receiver.isFull() {
 		receiver.expand()
 	}
@@ -121,7 +123,7 @@ func (receiver *Deque) PushBack(item int) {
 	receiver.endIndex = receiver.inc(receiver.endIndex)
 }
 
-func (receiver *Deque) PushFront(item int) {
+func (receiver *Deque[T]) PushFront(item T) {
 	if receiver.isFull() {
 		receiver.expand()
 	}
@@ -130,7 +132,7 @@ func (receiver *Deque) PushFront(item int) {
 	receiver.Set(0, item)
 }
 
-func (receiver *Deque) PopBack() int {
+func (receiver *Deque[T]) PopBack() T {
 	if receiver.IsEmpty() {
 		panic("the deque is currently empty!")
 	}
@@ -143,7 +145,7 @@ func (receiver *Deque) PopBack() int {
 	return res
 }
 
-func (receiver *Deque) PopFront() int {
+func (receiver *Deque[T]) PopFront() T {
 	if receiver.IsEmpty() {
 		panic("the deque is currently empty!")
 	}
@@ -156,7 +158,7 @@ func (receiver *Deque) PopFront() int {
 	return res
 }
 
-func (receiver Deque) min(a, b int) int {
+func (receiver Deque[T]) min(a, b int) int {
 	if a < b {
 		return a
 	} else {
@@ -164,22 +166,10 @@ func (receiver Deque) min(a, b int) int {
 	}
 }
 
-func (receiver Deque) max(a, b int) int {
+func (receiver Deque[T]) max(a, b int) int {
 	if a > b {
 		return a
 	} else {
 		return b
 	}
-}
-
-func (receiver Deque) ToString() string {
-	res := "["
-	if receiver.IsNotEmpty() {
-		res += strconv.Itoa(receiver.Front())
-	}
-	for i := 1; i < receiver.Size(); i++ {
-		res += ", " + strconv.Itoa(receiver.Get(i))
-	}
-	res += "]"
-	return res
 }
