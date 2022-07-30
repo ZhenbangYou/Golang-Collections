@@ -6,53 +6,52 @@ type Deque[T any] struct {
 	data                 []T
 	size                 int
 	beginIndex, endIndex int
-	cap                  int
 }
 
 const DequeMinCap = 8
 
 const DequeInitCap = 8
 
-func (receiver Deque[T]) Size() int {
+func (receiver Deque[_]) Size() int {
 	return receiver.size
 }
 
-func (receiver *Deque[T]) incSize() {
+func (receiver *Deque[_]) incSize() {
 	receiver.size++
 }
 
-func (receiver *Deque[T]) decSize() {
+func (receiver *Deque[_]) decSize() {
 	receiver.size--
 }
 
-func (receiver Deque[T]) IsEmpty() bool {
+func (receiver Deque[_]) IsEmpty() bool {
 	return receiver.Size() == 0
 }
 
-func (receiver Deque[T]) IsNotEmpty() bool {
+func (receiver Deque[_]) IsNotEmpty() bool {
 	return !receiver.IsEmpty()
 }
 
-func (receiver Deque[T]) Cap() int {
-	return receiver.cap
+func (receiver Deque[_]) Cap() int {
+	return len(receiver.data)
 }
 
 func NewDeque[T any]() Deque[T] {
-	return Deque[T]{data: make([]T, DequeInitCap), cap: DequeInitCap}
+	return Deque[T]{data: make([]T, DequeInitCap)}
 }
 
-func (receiver Deque[T]) modulo(i int) int {
+func (receiver Deque[_]) modulo(i int) int {
 	for i < 0 {
 		i += receiver.Cap()
 	}
 	return i % receiver.Cap()
 }
 
-func (receiver Deque[T]) inc(i int) int {
+func (receiver Deque[_]) inc(i int) int {
 	return receiver.modulo(i + 1)
 }
 
-func (receiver Deque[T]) dec(i int) int {
+func (receiver Deque[_]) dec(i int) int {
 	return receiver.modulo(i - 1)
 }
 
@@ -65,18 +64,17 @@ func (receiver *Deque[T]) resize(newSize int) {
 	receiver.data = newData
 	receiver.beginIndex = 0
 	receiver.endIndex = receiver.modulo(receiver.Size())
-	receiver.cap = newSize
 }
 
-func (receiver *Deque[T]) expand() {
+func (receiver *Deque[_]) expand() {
 	receiver.resize(receiver.Cap() * 2)
 }
 
-func (receiver *Deque[T]) shrink() {
+func (receiver *Deque[_]) shrink() {
 	receiver.resize((receiver.Cap() + 1) / 2)
 }
 
-func (receiver Deque[T]) isFull() bool {
+func (receiver Deque[_]) isFull() bool {
 	return receiver.Size() == receiver.Cap()
 }
 
@@ -158,7 +156,7 @@ func (receiver *Deque[T]) PopFront() T {
 	return res
 }
 
-func (receiver Deque[T]) min(a, b int) int {
+func (receiver Deque[_]) min(a, b int) int {
 	if a < b {
 		return a
 	} else {
@@ -166,7 +164,7 @@ func (receiver Deque[T]) min(a, b int) int {
 	}
 }
 
-func (receiver Deque[T]) max(a, b int) int {
+func (receiver Deque[_]) max(a, b int) int {
 	if a > b {
 		return a
 	} else {
