@@ -47,7 +47,10 @@ func (receiver Deque[_]) modulo(i int) int {
 	for i < 0 {
 		i += receiver.Cap()
 	}
-	return i % receiver.Cap()
+	for i >= receiver.Cap() {
+		i -= receiver.Cap()
+	}
+	return i
 }
 
 func (receiver Deque[_]) inc(i int) int {
