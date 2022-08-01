@@ -1,6 +1,9 @@
 package deque
 
-import "strconv"
+import (
+	"fmt"
+	"strconv"
+)
 
 type Deque[T any] struct {
 	data                 []T
@@ -170,4 +173,16 @@ func (receiver Deque[_]) max(a, b int) int {
 	} else {
 		return b
 	}
+}
+
+func (receiver Deque[_]) ToString() string {
+	res := "["
+	if receiver.IsNotEmpty() {
+		res += fmt.Sprint(receiver.Front())
+	}
+	for i := 1; i < receiver.Size(); i++ {
+		res += ", " + fmt.Sprint(receiver.Get(i))
+	}
+	res += "]"
+	return res
 }
