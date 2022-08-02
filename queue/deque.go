@@ -1,4 +1,4 @@
-package deque
+package queue
 
 import (
 	"fmt"
@@ -35,8 +35,15 @@ func (receiver Deque[_]) IsNotEmpty() bool {
 	return !receiver.IsEmpty()
 }
 
-func (receiver Deque[_]) Cap() int {
+func (receiver Deque[_]) capacity() int {
 	return len(receiver.data)
+}
+
+func (receiver *Deque[T]) Clear() {
+	receiver.data = make([]T, DequeInitCap)
+	receiver.size = 0
+	receiver.beginIndex = 0
+	receiver.endIndex = 0
 }
 
 func NewDeque[T any]() Deque[T] {
@@ -45,10 +52,10 @@ func NewDeque[T any]() Deque[T] {
 
 func (receiver Deque[_]) modulo(i int) int {
 	for i < 0 {
-		i += receiver.Cap()
+		i += receiver.capacity()
 	}
-	for i >= receiver.Cap() {
-		i -= receiver.Cap()
+	for i >= receiver.capacity() {
+		i -= receiver.capacity()
 	}
 	return i
 }
@@ -73,19 +80,19 @@ func (receiver *Deque[T]) resize(newSize int) {
 }
 
 func (receiver *Deque[_]) expand() {
-	receiver.resize(receiver.Cap() * 2)
+	receiver.resize(receiver.capacity() * 2)
 }
 
 func (receiver *Deque[_]) shrink() {
-	receiver.resize((receiver.Cap() + 1) / 2)
+	receiver.resize((receiver.capacity() + 1) / 2)
 }
 
 func (receiver Deque[_]) isFull() bool {
-	return receiver.Size() == receiver.Cap()
+	return receiver.Size() == receiver.capacity()
 }
 
 func (receiver Deque[T]) isToShrink() bool {
-	return receiver.Cap() > DequeMinCap && receiver.Size() <= receiver.Cap()/4
+	return receiver.capacity() > DequeMinCap && receiver.Size() <= receiver.capacity()/4
 }
 
 func (receiver Deque[T]) Get(index int) T {
@@ -106,14 +113,14 @@ func (receiver *Deque[T]) Set(index int, value T) {
 
 func (receiver Deque[T]) Back() T {
 	if receiver.IsEmpty() {
-		panic("the deque is currently empty!")
+		panic("the queue is currently empty!")
 	}
 	return receiver.Get(receiver.Size() - 1)
 }
 
 func (receiver Deque[T]) Front() T {
 	if receiver.IsEmpty() {
-		panic("the deque is currently empty!")
+		panic("the queue is currently empty!")
 	}
 	return receiver.Get(0)
 }
@@ -138,7 +145,7 @@ func (receiver *Deque[T]) PushFront(item T) {
 
 func (receiver *Deque[T]) PopBack() T {
 	if receiver.IsEmpty() {
-		panic("the deque is currently empty!")
+		panic("the queue is currently empty!")
 	}
 	res := receiver.Back()
 	receiver.endIndex = receiver.dec(receiver.endIndex)
@@ -151,7 +158,7 @@ func (receiver *Deque[T]) PopBack() T {
 
 func (receiver *Deque[T]) PopFront() T {
 	if receiver.IsEmpty() {
-		panic("the deque is currently empty!")
+		panic("the queue is currently empty!")
 	}
 	res := receiver.Front()
 	receiver.beginIndex = receiver.inc(receiver.beginIndex)
