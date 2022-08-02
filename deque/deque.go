@@ -178,7 +178,7 @@ func (receiver Deque[_]) max(a, b int) int {
 	}
 }
 
-func (receiver Deque[_]) ToString() string {
+func (receiver Deque[_]) String() string {
 	res := "["
 	if receiver.IsNotEmpty() {
 		res += fmt.Sprint(receiver.Front())
